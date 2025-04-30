@@ -25,12 +25,14 @@ This project is an implementation of a Brainfuck interpreter in Java. Brainfuck 
 - Command-line interface for executing Brainfuck programs.
 - Built with Maven for dependency management and project structure.
 
-## 📄 License
+---
+
+## License
 
 This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for more details.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 Developed by [AsterExcrisys](https://www.github.com/AsterExcrisys) — feel free to contribute, fork, or suggest features.
