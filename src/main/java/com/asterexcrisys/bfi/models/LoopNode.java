@@ -1,5 +1,6 @@
 package com.asterexcrisys.bfi.models;
 
+import com.asterexcrisys.bfi.services.Generator;
 import com.asterexcrisys.bfi.services.Memory;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,31 @@ public class LoopNode implements BlockNode {
         }
     }
 
+    public Generator<Node> executeOnce(Memory memory) {
+        if (count < 2) {
+            return new Generator<>() {
+                public void run() throws Exception {
+                    try (Generator<Node> generator = executeBodyOnce(memory)) {
+                        for (Node node : generator) {
+                            this.yield(node);
+                        }
+                    }
+                }
+            };
+        }
+        return new Generator<>() {
+            public void run() throws Exception {
+                for (int i = 0; i < count; i++) {
+                    try (Generator<Node> generator = executeBodyOnce(memory)) {
+                        for (Node node : generator) {
+                            this.yield(node);
+                        }
+                    }
+                }
+            }
+        };
+    }
+
     public BlockNode partialCopy() {
         return new LoopNode(count);
     }
@@ -74,6 +100,27 @@ public class LoopNode implements BlockNode {
                 operation.execute(memory);
             }
         }
+    }
+
+    private Generator<Node> executeBodyOnce(Memory memory) {
+        return new Generator<>() {
+            public void run() throws Exception {
+                while (memory.current() != 0) {
+                    for (Node operation : body) {
+                        if (operation instanceof BlockNode block) {
+                            try (Generator<Node> generator = block.executeOnce(memory)) {
+                                for (Node node : generator) {
+                                    this.yield(node);
+                                }
+                            }
+                        } else {
+                            operation.execute(memory);
+                            this.yield(operation);
+                        }
+                    }
+                }
+            }
+        };
     }
 
     @Override

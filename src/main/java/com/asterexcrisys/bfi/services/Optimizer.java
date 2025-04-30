@@ -1,7 +1,6 @@
 package com.asterexcrisys.bfi.services;
 
 import com.asterexcrisys.bfi.models.BlockNode;
-import com.asterexcrisys.bfi.models.LoopNode;
 import com.asterexcrisys.bfi.models.Node;
 import com.asterexcrisys.bfi.models.ProgramNode;
 
@@ -47,14 +46,12 @@ public class Optimizer {
         return optimizedBlock;
     }
 
-    private static void addOptimizedOperation(BlockNode block, Node operation, int count) {
+    private static void addOptimizedOperation(BlockNode outerBlock, Node operation, int count) {
         operation.count(count);
-        if (operation instanceof LoopNode loop) {
-            block.addOperation(optimizeBlock(loop));
-        } else if (operation instanceof ProgramNode program) {
-            block.addOperation(optimizeBlock(program));
+        if (operation instanceof BlockNode innerBlock) {
+            outerBlock.addOperation(optimizeBlock(innerBlock));
         } else {
-            block.addOperation(operation);
+            outerBlock.addOperation(operation);
         }
     }
 

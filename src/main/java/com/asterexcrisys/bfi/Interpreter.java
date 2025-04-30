@@ -22,9 +22,9 @@ public class Interpreter {
         parser.appendCode(code);
     }
 
-    public void interpret(boolean optimize) {
+    public void interpret(boolean shouldOptimize) {
         ProgramNode program;
-        if (optimize) {
+        if (shouldOptimize) {
             Optimizer optimizer = new Optimizer(parser.parse());
             program = optimizer.optimize();
         } else {
