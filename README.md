@@ -1,6 +1,6 @@
 # Brainfuck Interpreter
 
-A simple Brainfuck interpreter written in Java.
+A simple Brainfuck interpreter written in Java, equipped with both an optimizer and a debugger (WiP).
 
 ---
 
