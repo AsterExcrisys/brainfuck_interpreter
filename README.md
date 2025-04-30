@@ -8,6 +8,7 @@ A simple Brainfuck interpreter written in Java.
 - [Overview](#overview)
 - [Features](#features)
 - [License](#license)
+- [Author](#author)
 
 ---
 
