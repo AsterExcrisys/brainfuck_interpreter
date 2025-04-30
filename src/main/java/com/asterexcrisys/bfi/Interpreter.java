@@ -2,6 +2,7 @@ package com.asterexcrisys.bfi;
 
 import com.asterexcrisys.bfi.models.ProgramNode;
 import com.asterexcrisys.bfi.services.Memory;
+import com.asterexcrisys.bfi.services.Optimizer;
 import com.asterexcrisys.bfi.services.Parser;
 
 @SuppressWarnings("unused")
@@ -21,8 +22,14 @@ public class Interpreter {
         parser.appendCode(code);
     }
 
-    public void interpret() {
-        ProgramNode program = parser.parse();
+    public void interpret(boolean optimize) {
+        ProgramNode program;
+        if (optimize) {
+            Optimizer optimizer = new Optimizer(parser.parse());
+            program = optimizer.optimize();
+        } else {
+            program = parser.parse();
+        }
         Memory memory = new Memory();
         program.execute(memory);
     }

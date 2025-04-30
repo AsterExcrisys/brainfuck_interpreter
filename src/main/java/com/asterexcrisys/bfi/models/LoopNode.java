@@ -4,25 +4,84 @@ import com.asterexcrisys.bfi.services.Memory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoopNode implements Node {
+@SuppressWarnings("unused")
+public class LoopNode implements BlockNode {
 
     private final List<Node> body;
+    private int count;
 
     public LoopNode() {
         body = new ArrayList<>();
+        count = 1;
+    }
+
+    public LoopNode(List<Node> body) {
+        this.body = body;
+        count = 1;
+    }
+
+    public LoopNode(int count) {
+        body = new ArrayList<>();
+        this.count = count;
+    }
+
+    public LoopNode(List<Node> body, int count) {
+        this.body = body;
+        this.count = count;
+    }
+
+    public Node[] operations() {
+        return body.toArray(new Node[0]);
     }
 
     public void addOperation(Node operation) {
         body.add(operation);
     }
 
-    @Override
+    public void removeOperation(Node operation) {
+        body.remove(operation);
+    }
+
+    public int count() {
+        return count;
+    }
+
+    public void count(int count) {
+        this.count = count;
+    }
+
     public void execute(Memory memory) {
+        if (count < 2) {
+            executeBody(memory);
+            return;
+        }
+        for (int i = 0; i < count; i++) {
+            executeBody(memory);
+        }
+    }
+
+    public BlockNode partialCopy() {
+        return new LoopNode(count);
+    }
+
+    public BlockNode fullCopy() {
+        return new LoopNode(body, count);
+    }
+
+    private void executeBody(Memory memory) {
         while (memory.current() != 0) {
             for (Node operation : body) {
                 operation.execute(memory);
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof LoopNode node)) {
+            return false;
+        }
+        return node.body.equals(body) && node.count == count;
     }
 
 }

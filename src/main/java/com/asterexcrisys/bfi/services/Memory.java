@@ -2,6 +2,7 @@ package com.asterexcrisys.bfi.services;
 
 import com.asterexcrisys.bfi.exceptions.UnexpectedStreamException;
 import java.io.IOException;
+import java.util.Arrays;
 
 @SuppressWarnings("unused")
 public class Memory {
@@ -46,6 +47,71 @@ public class Memory {
 
     public void readInput() throws UnexpectedStreamException {
         try {
+            int input = System.in.read();
+            tape[pointer] = (byte) input;
+        } catch (IOException e) {
+            throw new UnexpectedStreamException("Input error: " + e.getMessage());
+        }
+    }
+
+    public void moveRight(int amount) {
+        if (amount < 2) {
+            moveRight();
+            return;
+        }
+        pointer += amount;
+        if (pointer > tape.length - 1) {
+            pointer = pointer & 0xFFFF;
+        }
+    }
+
+    public void moveLeft(int amount) {
+        if (amount < 2) {
+            moveLeft();
+            return;
+        }
+        pointer -= amount;
+        if (pointer < 0) {
+            pointer = tape.length - (pointer & 0xFFFF) - 1;
+        }
+    }
+
+    public void increment(int amount) {
+        if (amount < 2) {
+            increment();
+            return;
+        }
+        tape[pointer] += (byte) (amount & 0xFF);
+    }
+
+    public void decrement(int amount) {
+        if (amount < 2) {
+            decrement();
+            return;
+        }
+        tape[pointer] -= (byte) (amount & 0xFF);
+    }
+
+    public void printOutput(int amount) {
+        if (amount < 2) {
+            printOutput();
+            return;
+        }
+        char[] characters = new char[amount];
+        Arrays.fill(characters, (char) tape[pointer]);
+        System.out.print(new String(characters));
+    }
+
+    public void readInput(int amount) throws UnexpectedStreamException {
+        if (amount < 2) {
+            readInput();
+            return;
+        }
+        try {
+            long amountSkipped = System.in.skip(amount - 1);
+            if (amountSkipped != amount - 1) {
+                return;
+            }
             int input = System.in.read();
             tape[pointer] = (byte) input;
         } catch (IOException e) {

@@ -19,11 +19,11 @@ public class Parser {
     }
 
     public Parser(String code) {
-        builder = new StringBuilder(code);
+        builder = new StringBuilder(code.trim());
     }
 
     public void appendCode(String code) {
-        builder.append(code);
+        builder.append(code.trim());
     }
 
     public ProgramNode parse() {
@@ -33,37 +33,63 @@ public class Parser {
     private static ProgramNode parse(String code) {
         List<Node> operations = new ArrayList<>();
         Stack<LoopNode> loops = new Stack<>();
+        boolean isComment = false;
         for (int i = 0; i < code.length(); i++) {
             char operation = code.charAt(i);
             switch (operation) {
+                case '(' -> isComment = true;
+                case ')' -> {
+                    if (!isComment) {
+                        throw new InvalidSyntaxException("Unmatched closing bracket (comment) at position: " + i);
+                    }
+                    isComment = false;
+                }
                 case '>', '<', '+', '-', '.', ',' -> {
+                    if (isComment) {
+                        break;
+                    }
+                    CommandNode command = new CommandNode(operation, 1);
                     if (loops.empty()) {
-                        operations.add(new CommandNode(operation));
+                        operations.add(command);
                     } else {
-                        loops.peek().addOperation(new CommandNode(operation));
+                        loops.peek().addOperation(command);
                     }
                 }
                 case '[' -> {
-                    LoopNode loop = new LoopNode();
+                    if (isComment) {
+                        break;
+                    }
+                    LoopNode loop = new LoopNode(1);
                     if (loops.empty()) {
                         operations.add(loop);
                     }
                     loops.push(loop);
                 }
                 case ']' -> {
+                    if (isComment) {
+                        break;
+                    }
                     if (loops.empty()) {
-                        throw new InvalidSyntaxException("Unmatched closing bracket at position: " + i);
+                        throw new InvalidSyntaxException("Unmatched closing bracket (loop) at position: " + i);
                     }
                     LoopNode loop = loops.pop();
                     if (!loops.empty()) {
                         loops.peek().addOperation(loop);
                     }
                 }
-                default -> throw new InvalidSyntaxException("Unrecognized operation: " + operation);
+                default -> {
+                    if (isComment) {
+                        break;
+                    }
+                    throw new InvalidSyntaxException("Unrecognized operation '" + operation + "' at position: " + i);
+                }
             }
         }
         if (!loops.empty()) {
-            throw new InvalidSyntaxException("Unmatched opening bracket at an unknown position");
+            throw new InvalidSyntaxException("Unmatched opening bracket (loop) at an unknown position");
+        }
+        if (isComment) {
+            throw new InvalidSyntaxException("Unmatched opening bracket (comment) at an unknown position");
         }
         return new ProgramNode(operations);
     }

@@ -3,19 +3,70 @@ package com.asterexcrisys.bfi.models;
 import com.asterexcrisys.bfi.exceptions.UnknownCommandException;
 import com.asterexcrisys.bfi.services.Memory;
 
-public record CommandNode(char command) implements Node {
+@SuppressWarnings("unused")
+public class CommandNode implements Node {
 
-    @Override
+    private final char command;
+    private int count;
+
+    public CommandNode() {
+        command = '\0';
+        count = 0;
+    }
+
+    public CommandNode(char command) {
+        this.command = command;
+        count = 1;
+    }
+
+    public CommandNode(int count) {
+        command = '\0';
+        this.count = count;
+    }
+
+    public CommandNode(char command, int count) {
+        this.command = command;
+        this.count = count;
+    }
+
+    public char command() {
+        return command;
+    }
+
+    public int count() {
+        return count;
+    }
+
+    public void count(int count) {
+        this.count = count;
+    }
+
     public void execute(Memory memory) {
         switch (command) {
-            case '>' -> memory.moveRight();
-            case '<' -> memory.moveLeft();
-            case '+' -> memory.increment();
-            case '-' -> memory.decrement();
-            case '.' -> memory.printOutput();
-            case ',' -> memory.readInput();
+            case '>' -> memory.moveRight(count);
+            case '<' -> memory.moveLeft(count);
+            case '+' -> memory.increment(count);
+            case '-' -> memory.decrement(count);
+            case '.' -> memory.printOutput(count);
+            case ',' -> memory.readInput(count);
             default -> throw new UnknownCommandException("Unknown command: " + command);
         }
+    }
+
+    public Node partialCopy() {
+        return new CommandNode(count);
+    }
+
+    public Node fullCopy() {
+        return new CommandNode(command, count);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof CommandNode node)) {
+            return false;
+        }
+        return node.command == command && node.count == count;
     }
 
 }
