@@ -1,6 +1,6 @@
 package com.asterexcrisys.bfi.services;
 
-import com.asterexcrisys.bfi.exceptions.NotExpectedStreamException;
+import com.asterexcrisys.bfi.exceptions.StreamInteractionException;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -73,12 +73,12 @@ public class Memory {
         System.out.print((char) tape[pointer]);
     }
 
-    public void readInput() throws NotExpectedStreamException {
+    public void readInput() throws StreamInteractionException {
         try {
             int input = System.in.read();
             tape[pointer] = (byte) input;
         } catch (IOException e) {
-            throw new NotExpectedStreamException("Input error: " + e.getMessage());
+            throw new StreamInteractionException("Input error: " + e.getMessage());
         }
     }
 
@@ -130,7 +130,7 @@ public class Memory {
         System.out.print(new String(characters));
     }
 
-    public void readInput(int amount) throws NotExpectedStreamException {
+    public void readInput(int amount) throws StreamInteractionException {
         if (amount < 2) {
             readInput();
             return;
@@ -143,7 +143,7 @@ public class Memory {
             int input = System.in.read();
             tape[pointer] = (byte) input;
         } catch (IOException e) {
-            throw new NotExpectedStreamException("Input error: " + e.getMessage());
+            throw new StreamInteractionException("Encountered an error while reading from input stream: " + e.getMessage());
         }
     }
 

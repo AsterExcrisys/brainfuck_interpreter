@@ -87,6 +87,16 @@ public class ProgramNode implements BlockNode {
         };
     }
 
+    public void translate(List<Byte> bytecode) {
+        if (count < 2) {
+            translateSnippet(bytecode);
+            return;
+        }
+        for (int i = 0; i < count; i++) {
+            translateSnippet(bytecode);
+        }
+    }
+
     public BlockNode partialCopy() {
         return new ProgramNode(count);
     }
@@ -118,6 +128,12 @@ public class ProgramNode implements BlockNode {
                 }
             }
         };
+    }
+
+    private void translateSnippet(List<Byte> bytecode) {
+        for (Node operation : snippet) {
+            operation.translate(bytecode);
+        }
     }
 
     @Override

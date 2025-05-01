@@ -1,7 +1,7 @@
 package com.asterexcrisys.bfi;
 
 import com.asterexcrisys.bfi.exceptions.IllegalDebuggerStateException;
-import com.asterexcrisys.bfi.models.dialects.DialectType;
+import com.asterexcrisys.bfi.models.dialects.Dialect;
 import com.asterexcrisys.bfi.models.nodes.Node;
 import com.asterexcrisys.bfi.models.nodes.ProgramNode;
 import com.asterexcrisys.bfi.services.Generator;
@@ -29,14 +29,14 @@ public class Debugger implements AutoCloseable {
         iterator = null;
     }
 
-    public Debugger(DialectType type) {
-        parser = new Parser(type);
+    public Debugger(Dialect dialect) {
+        parser = new Parser(dialect);
         generator = null;
         iterator = null;
     }
 
-    public Debugger(String code, DialectType type) {
-        parser = new Parser(code, type);
+    public Debugger(String code, Dialect dialect) {
+        parser = new Parser(code, dialect);
         generator = null;
         iterator = null;
     }

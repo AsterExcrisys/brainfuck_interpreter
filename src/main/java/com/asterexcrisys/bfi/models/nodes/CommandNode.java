@@ -1,7 +1,8 @@
 package com.asterexcrisys.bfi.models.nodes;
 
-import com.asterexcrisys.bfi.exceptions.UnknownCommandException;
+import com.asterexcrisys.bfi.exceptions.InvalidSyntaxException;
 import com.asterexcrisys.bfi.services.Memory;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class CommandNode implements Node {
@@ -56,7 +57,50 @@ public class CommandNode implements Node {
             case '#' -> memory.clear();
             case '.' -> memory.printOutput(count);
             case ',' -> memory.readInput(count);
-            default -> throw new UnknownCommandException("Unknown command: " + command);
+            default -> throw new InvalidSyntaxException("Unknown command: " + command);
+        }
+    }
+
+    public void translate(List<Byte> bytecode) {
+        switch (command) {
+            case '^' -> bytecode.add((byte) 0x00);
+            case 'v' -> bytecode.add((byte) 0x01);
+            case '=' -> bytecode.add((byte) 0x02);
+            case '>' -> {
+                for (int i = 0; i < count; i++) {
+                    bytecode.add((byte) 0x03);
+                }
+            }
+            case '<' -> {
+                for (int i = 0; i < count; i++) {
+                    bytecode.add((byte) 0x04);
+                }
+            }
+            case '+' -> {
+                for (int i = 0; i < count; i++) {
+                    bytecode.add((byte) 0x05);
+                }
+            }
+            case '-' -> {
+                for (int i = 0; i < count; i++) {
+                    bytecode.add((byte) 0x06);
+                }
+            }
+            case '*' -> bytecode.add((byte) 0x07);
+            case ':' -> bytecode.add((byte) 0x08);
+            case '%' -> bytecode.add((byte) 0x09);
+            case '#' -> bytecode.add((byte) 0x0A);
+            case '.' -> {
+                for (int i = 0; i < count; i++) {
+                    bytecode.add((byte) 0x0B);
+                }
+            }
+            case ',' -> {
+                for (int i = 0; i < count; i++) {
+                    bytecode.add((byte) 0x0C);
+                }
+            }
+            default -> throw new InvalidSyntaxException("Unknown command: " + command);
         }
     }
 

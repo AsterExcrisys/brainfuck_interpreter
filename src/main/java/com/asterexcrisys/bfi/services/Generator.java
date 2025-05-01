@@ -66,7 +66,7 @@ public abstract class Generator<T> implements Iterable<T>, AutoCloseable {
                     return false;
                 } catch (Exception exception) {
                     isCompleted = true;
-                    throw new RuntimeException("unexpected exception thrown by the generator", exception);
+                    throw new RuntimeException("Unexpected exception thrown by the generator", exception);
                 }
             }
 
@@ -76,10 +76,10 @@ public abstract class Generator<T> implements Iterable<T>, AutoCloseable {
     public void close() throws Exception {
         executor.shutdownNow();
         if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
-            throw new InterruptedException("failed to terminate executor before timeout elapsed");
+            throw new InterruptedException("Failed to terminate executor before timeout elapsed");
         }
         if (taskException != null) {
-            throw new ExecutionException("exception thrown by the runnable task during execution", taskException);
+            throw new ExecutionException("Exception thrown by the runnable task during execution", taskException);
         }
     }
 

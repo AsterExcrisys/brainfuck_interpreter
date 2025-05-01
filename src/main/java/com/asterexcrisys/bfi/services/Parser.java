@@ -1,6 +1,7 @@
 package com.asterexcrisys.bfi.services;
 
 import com.asterexcrisys.bfi.exceptions.InvalidSyntaxException;
+import com.asterexcrisys.bfi.models.dialects.Dialect;
 import com.asterexcrisys.bfi.models.dialects.DialectType;
 import com.asterexcrisys.bfi.models.nodes.CommandNode;
 import com.asterexcrisys.bfi.models.nodes.LoopNode;
@@ -15,26 +16,26 @@ import java.util.Stack;
 public class Parser {
 
     private final StringBuilder builder;
-    private final DialectType type;
+    private final Dialect dialect;
 
     public Parser() {
         builder = new StringBuilder();
-        type = DialectType.BRAINFUCK;
+        dialect = DialectType.BRAINFUCK.dialect();
     }
 
     public Parser(String code) {
         builder = new StringBuilder(code);
-        type = DialectType.BRAINFUCK;
+        dialect = DialectType.BRAINFUCK.dialect();
     }
 
-    public Parser(DialectType type) {
+    public Parser(Dialect dialect) {
         builder = new StringBuilder();
-        this.type = type;
+        this.dialect = Objects.requireNonNull(dialect);
     }
 
-    public Parser(String code, DialectType type) {
+    public Parser(String code, Dialect dialect) {
         builder = new StringBuilder(code);
-        this.type = Objects.requireNonNull(type);
+        this.dialect = Objects.requireNonNull(dialect);
     }
 
     public String code() {
@@ -46,17 +47,17 @@ public class Parser {
     }
 
     public DialectType type() {
-        return type;
+        return dialect.toType();
     }
 
     public ProgramNode parse() {
         String code;
-        if (type == DialectType.BRAINFUCK) {
+        if (dialect.toType() == DialectType.BRAINFUCK) {
             code = sanitize(builder.toString());
         } else {
-            code = type.dialect().convertTo(
+            code = dialect.convertTo(
                     sanitize(builder.toString()),
-                    DialectType.BRAINFUCK
+                    DialectType.BRAINFUCK.dialect()
             );
         }
         return parse(code);

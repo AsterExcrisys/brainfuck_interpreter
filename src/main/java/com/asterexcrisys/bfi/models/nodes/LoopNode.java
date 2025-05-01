@@ -87,6 +87,20 @@ public class LoopNode implements BlockNode {
         };
     }
 
+    public void translate(List<Byte> bytecode) {
+        if (count < 2) {
+            bytecode.add((byte) 0x0D);
+            translateBody(bytecode);
+            bytecode.add((byte) 0x0E);
+            return;
+        }
+        for (int i = 0; i < count; i++) {
+            bytecode.add((byte) 0x0D);
+            translateBody(bytecode);
+            bytecode.add((byte) 0x0E);
+        }
+    }
+
     public BlockNode partialCopy() {
         return new LoopNode(count);
     }
@@ -122,6 +136,12 @@ public class LoopNode implements BlockNode {
                 }
             }
         };
+    }
+
+    private void translateBody(List<Byte> bytecode) {
+        for (Node operation : body) {
+            operation.translate(bytecode);
+        }
     }
 
     @Override

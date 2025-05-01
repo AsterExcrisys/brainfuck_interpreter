@@ -1,6 +1,7 @@
 package com.asterexcrisys.bfi.models.nodes;
 
 import com.asterexcrisys.bfi.services.Memory;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public interface Node {
@@ -10,6 +11,8 @@ public interface Node {
     void count(int count);
 
     void execute(Memory memory);
+
+    void translate(List<Byte> bytecode);
 
     Node partialCopy();
 
