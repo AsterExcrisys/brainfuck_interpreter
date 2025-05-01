@@ -1,8 +1,9 @@
 package com.asterexcrisys.bfi.services;
 
-import com.asterexcrisys.bfi.models.BlockNode;
-import com.asterexcrisys.bfi.models.Node;
-import com.asterexcrisys.bfi.models.ProgramNode;
+import com.asterexcrisys.bfi.models.nodes.BlockNode;
+import com.asterexcrisys.bfi.models.nodes.Node;
+import com.asterexcrisys.bfi.models.nodes.ProgramNode;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class Optimizer {
@@ -10,7 +11,7 @@ public class Optimizer {
     private final ProgramNode program;
 
     public Optimizer(ProgramNode program) {
-        this.program = program;
+        this.program = Objects.requireNonNull(program);
     }
 
     public void addOperation(Node operation) {

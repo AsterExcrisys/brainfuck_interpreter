@@ -1,4 +1,4 @@
-package com.asterexcrisys.bfi.models;
+package com.asterexcrisys.bfi.models.nodes;
 
 import com.asterexcrisys.bfi.exceptions.UnknownCommandException;
 import com.asterexcrisys.bfi.services.Memory;
@@ -43,10 +43,17 @@ public class CommandNode implements Node {
 
     public void execute(Memory memory) {
         switch (command) {
+            case '^' -> memory.moveStart();
+            case 'v' -> memory.moveEnd();
+            case '=' -> memory.moveMiddle();
             case '>' -> memory.moveRight(count);
             case '<' -> memory.moveLeft(count);
             case '+' -> memory.increment(count);
             case '-' -> memory.decrement(count);
+            case '*' -> memory.maximize();
+            case ':' -> memory.minimize();
+            case '%' -> memory.halve();
+            case '#' -> memory.clear();
             case '.' -> memory.printOutput(count);
             case ',' -> memory.readInput(count);
             default -> throw new UnknownCommandException("Unknown command: " + command);

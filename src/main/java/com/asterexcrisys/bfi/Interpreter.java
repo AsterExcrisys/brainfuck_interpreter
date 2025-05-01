@@ -1,6 +1,7 @@
 package com.asterexcrisys.bfi;
 
-import com.asterexcrisys.bfi.models.ProgramNode;
+import com.asterexcrisys.bfi.models.dialects.DialectType;
+import com.asterexcrisys.bfi.models.nodes.ProgramNode;
 import com.asterexcrisys.bfi.services.Memory;
 import com.asterexcrisys.bfi.services.Optimizer;
 import com.asterexcrisys.bfi.services.Parser;
@@ -16,6 +17,14 @@ public class Interpreter {
 
     public Interpreter(String code) {
         parser = new Parser(code);
+    }
+
+    public Interpreter(DialectType type) {
+        parser = new Parser(type);
+    }
+
+    public Interpreter(String code, DialectType type) {
+        parser = new Parser(code, type);
     }
 
     public void appendCode(String code) {

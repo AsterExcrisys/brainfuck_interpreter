@@ -1,4 +1,4 @@
-package com.asterexcrisys.bfi.models;
+package com.asterexcrisys.bfi.models.nodes;
 
 import com.asterexcrisys.bfi.services.Memory;
 

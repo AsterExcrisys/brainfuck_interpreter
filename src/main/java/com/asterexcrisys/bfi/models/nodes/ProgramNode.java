@@ -1,9 +1,10 @@
-package com.asterexcrisys.bfi.models;
+package com.asterexcrisys.bfi.models.nodes;
 
 import com.asterexcrisys.bfi.services.Generator;
 import com.asterexcrisys.bfi.services.Memory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class ProgramNode implements BlockNode {
@@ -17,7 +18,7 @@ public class ProgramNode implements BlockNode {
     }
 
     public ProgramNode(List<Node> snippet) {
-        this.snippet = snippet;
+        this.snippet = Objects.requireNonNull(snippet);
         count = 1;
     }
 
@@ -27,7 +28,7 @@ public class ProgramNode implements BlockNode {
     }
 
     public ProgramNode(List<Node> snippet, int count) {
-        this.snippet = snippet;
+        this.snippet = Objects.requireNonNull(snippet);
         this.count = count;
     }
 

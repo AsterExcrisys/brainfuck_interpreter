@@ -1,6 +1,6 @@
 package com.asterexcrisys.bfi.services;
 
-import com.asterexcrisys.bfi.exceptions.UnexpectedStreamException;
+import com.asterexcrisys.bfi.exceptions.NotExpectedStreamException;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -17,6 +17,18 @@ public class Memory {
 
     public byte current() {
         return tape[pointer];
+    }
+
+    public void moveStart() {
+        pointer = 0;
+    }
+
+    public void moveEnd() {
+        pointer = tape.length - 1;
+    }
+
+    public void moveMiddle() {
+        pointer = 32768;
     }
 
     public void moveRight() {
@@ -41,16 +53,32 @@ public class Memory {
         tape[pointer]--;
     }
 
+    public void maximize() {
+        tape[pointer] = 127;
+    }
+
+    public void minimize() {
+        tape[pointer] = -128;
+    }
+
+    public void halve() {
+        tape[pointer] = 0;
+    }
+
+    public void clear() {
+        Arrays.fill(tape, (byte) 0);
+    }
+
     public void printOutput() {
         System.out.print((char) tape[pointer]);
     }
 
-    public void readInput() throws UnexpectedStreamException {
+    public void readInput() throws NotExpectedStreamException {
         try {
             int input = System.in.read();
             tape[pointer] = (byte) input;
         } catch (IOException e) {
-            throw new UnexpectedStreamException("Input error: " + e.getMessage());
+            throw new NotExpectedStreamException("Input error: " + e.getMessage());
         }
     }
 
@@ -102,7 +130,7 @@ public class Memory {
         System.out.print(new String(characters));
     }
 
-    public void readInput(int amount) throws UnexpectedStreamException {
+    public void readInput(int amount) throws NotExpectedStreamException {
         if (amount < 2) {
             readInput();
             return;
@@ -115,7 +143,7 @@ public class Memory {
             int input = System.in.read();
             tape[pointer] = (byte) input;
         } catch (IOException e) {
-            throw new UnexpectedStreamException("Input error: " + e.getMessage());
+            throw new NotExpectedStreamException("Input error: " + e.getMessage());
         }
     }
 

@@ -1,9 +1,10 @@
-package com.asterexcrisys.bfi.models;
+package com.asterexcrisys.bfi.models.nodes;
 
 import com.asterexcrisys.bfi.services.Generator;
 import com.asterexcrisys.bfi.services.Memory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class LoopNode implements BlockNode {
@@ -17,7 +18,7 @@ public class LoopNode implements BlockNode {
     }
 
     public LoopNode(List<Node> body) {
-        this.body = body;
+        this.body = Objects.requireNonNull(body);
         count = 1;
     }
 
@@ -27,7 +28,7 @@ public class LoopNode implements BlockNode {
     }
 
     public LoopNode(List<Node> body, int count) {
-        this.body = body;
+        this.body = Objects.requireNonNull(body);
         this.count = count;
     }
 
