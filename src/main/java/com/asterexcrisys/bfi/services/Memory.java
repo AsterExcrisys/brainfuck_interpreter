@@ -2,21 +2,39 @@ package com.asterexcrisys.bfi.services;
 
 import com.asterexcrisys.bfi.exceptions.StreamInteractionException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 @SuppressWarnings("unused")
-public class Memory {
+public class Memory implements AutoCloseable {
 
     private final byte[] tape;
     private int pointer;
+    private InputStream input;
+    private OutputStream output;
 
     public Memory() {
+        input = System.in;
+        output = System.out;
         tape = new byte[65536];
         pointer = 0;
     }
 
     public byte current() {
         return tape[pointer];
+    }
+
+    public int position() {
+        return pointer;
+    }
+
+    public void input(InputStream input) {
+        this.input = input;
+    }
+
+    public void output(OutputStream output) {
+        this.output = output;
     }
 
     public void moveStart() {
@@ -54,11 +72,11 @@ public class Memory {
     }
 
     public void maximize() {
-        tape[pointer] = 127;
+        tape[pointer] = Byte.MAX_VALUE;
     }
 
     public void minimize() {
-        tape[pointer] = -128;
+        tape[pointer] = Byte.MIN_VALUE;
     }
 
     public void halve() {
@@ -70,15 +88,20 @@ public class Memory {
     }
 
     public void printOutput() {
-        System.out.print((char) tape[pointer]);
+        try {
+            output.write(tape[pointer]);
+            output.flush();
+        } catch (IOException exception) {
+            throw new StreamInteractionException("Encountered an error while writing to output stream: " + exception.getMessage());
+        }
     }
 
     public void readInput() throws StreamInteractionException {
         try {
-            int input = System.in.read();
-            tape[pointer] = (byte) input;
-        } catch (IOException e) {
-            throw new StreamInteractionException("Input error: " + e.getMessage());
+            int byteRead = input.read();
+            tape[pointer] = (byte) byteRead;
+        } catch (IOException exception) {
+            throw new StreamInteractionException("Encountered an error while reading from input stream: " + exception.getMessage());
         }
     }
 
@@ -125,9 +148,14 @@ public class Memory {
             printOutput();
             return;
         }
-        char[] characters = new char[amount];
-        Arrays.fill(characters, (char) tape[pointer]);
-        System.out.print(new String(characters));
+        byte[] bytesWritten = new byte[amount];
+        Arrays.fill(bytesWritten, tape[pointer]);
+        try {
+            output.write(bytesWritten);
+            output.flush();
+        } catch (IOException exception) {
+            throw new StreamInteractionException("Encountered an error while writing to output stream: " + exception.getMessage());
+        }
     }
 
     public void readInput(int amount) throws StreamInteractionException {
@@ -136,15 +164,20 @@ public class Memory {
             return;
         }
         try {
-            long amountSkipped = System.in.skip(amount - 1);
+            long amountSkipped = input.skip(amount - 1);
             if (amountSkipped != amount - 1) {
                 return;
             }
-            int input = System.in.read();
-            tape[pointer] = (byte) input;
-        } catch (IOException e) {
-            throw new StreamInteractionException("Encountered an error while reading from input stream: " + e.getMessage());
+            int byteRead = input.read();
+            tape[pointer] = (byte) byteRead;
+        } catch (IOException exception) {
+            throw new StreamInteractionException("Encountered an error while reading from input stream: " + exception.getMessage());
         }
+    }
+
+    public void close() throws IOException {
+        input.close();
+        output.close();
     }
 
 }

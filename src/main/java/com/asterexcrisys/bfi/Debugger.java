@@ -14,29 +14,34 @@ import java.util.Iterator;
 public class Debugger implements AutoCloseable {
 
     private final Parser parser;
+    private Memory memory;
     private Generator<Node> generator;
     private Iterator<Node> iterator;
 
     public Debugger() {
         parser = new Parser();
+        memory = null;
         generator = null;
         iterator = null;
     }
 
     public Debugger(String code) {
         parser = new Parser(code);
+        memory = null;
         generator = null;
         iterator = null;
     }
 
     public Debugger(Dialect dialect) {
         parser = new Parser(dialect);
+        memory = null;
         generator = null;
         iterator = null;
     }
 
     public Debugger(String code, Dialect dialect) {
         parser = new Parser(code, dialect);
+        memory = null;
         generator = null;
         iterator = null;
     }
@@ -56,12 +61,14 @@ public class Debugger implements AutoCloseable {
         } else {
             program = parser.parse();
         }
-        Memory memory = new Memory();
+        memory = new Memory();
         generator = program.executeOnce(memory);
         iterator = generator.iterator();
     }
 
     public void close() throws Exception {
+        memory.close();
+        memory = null;
         generator.close();
         generator = null;
     }
