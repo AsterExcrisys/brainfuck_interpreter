@@ -57,7 +57,7 @@ com.asterexcrisys.bfi
 
 | Category      | Tool / Technology | Notes                                   |
 | ------------- | ----------------- | --------------------------------------- |
-| Language      | Java 17           | Modern LTS version                      |
+| Language      | Java 21           | Modern LTS version                      |
 | Build Tool    | Maven             | Project build and dependency management |
 | Testing       | JUnit 5           | For unit and integration testing        |
 | Documentation | Javadoc           | Interface and API documentation         |
