@@ -43,4 +43,16 @@ public class Interpreter {
         program.execute(memory);
     }
 
+    public static void interpret(byte[] bytecode, boolean shouldOptimize) {
+        ProgramNode program;
+        if (shouldOptimize) {
+            Optimizer optimizer = new Optimizer(Compiler.decompile(bytecode));
+            program = optimizer.optimize();
+        } else {
+            program = Compiler.decompile(bytecode);
+        }
+        Memory memory = new Memory();
+        program.execute(memory);
+    }
+
 }

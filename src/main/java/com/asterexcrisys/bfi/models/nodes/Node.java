@@ -12,7 +12,7 @@ public interface Node {
 
     void execute(Memory memory);
 
-    void translate(List<Byte> bytecode);
+    int translate(List<Byte> bytecode);
 
     Node partialCopy();
 

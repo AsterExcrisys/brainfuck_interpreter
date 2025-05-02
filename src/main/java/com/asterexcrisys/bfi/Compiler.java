@@ -3,11 +3,16 @@ package com.asterexcrisys.bfi;
 import com.asterexcrisys.bfi.exceptions.InvalidSyntaxException;
 import com.asterexcrisys.bfi.models.dialects.Dialect;
 import com.asterexcrisys.bfi.models.instructions.InstructionType;
+import com.asterexcrisys.bfi.models.nodes.CommandNode;
+import com.asterexcrisys.bfi.models.nodes.LoopNode;
+import com.asterexcrisys.bfi.models.nodes.Node;
 import com.asterexcrisys.bfi.models.nodes.ProgramNode;
+import com.asterexcrisys.bfi.services.Counter;
 import com.asterexcrisys.bfi.services.Optimizer;
 import com.asterexcrisys.bfi.services.Parser;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 @SuppressWarnings("unused")
 public class Compiler {
@@ -51,26 +56,71 @@ public class Compiler {
         return result;
     }
 
-    public static String decompile(byte[] bytecode) {
+    public static ProgramNode decompile(byte[] bytecode) {
         if (bytecode == null || bytecode.length == 0) {
             return null;
         }
-        InstructionType[] types = InstructionType.values();
-        StringBuilder result = new StringBuilder();
+        List<Node> operations = new ArrayList<>();
+        Stack<LoopNode> loops = new Stack<>();
+        Stack<Counter> counts = new Stack<>();
         for (int i = 0; i < bytecode.length; i++) {
-            boolean isFound = false;
-            for (InstructionType type : types) {
-                if (type.code() == bytecode[i]) {
-                    result.append(type.keyword());
-                    isFound = true;
-                    break;
+            byte operation = bytecode[i];
+            switch (operation) {
+                case 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C -> {
+                    CommandNode command = decompileNode(bytecode, operation, i);
+                    i += command.type().count();
+                    if (loops.empty()) {
+                        operations.add(command);
+                    } else {
+                        loops.peek().addOperation(command);
+                        counts.peek().increment();
+                        if (counts.peek().distance() == 0) {
+                            loops.pop();
+                            counts.pop();
+                        }
+                    }
                 }
-            }
-            if (!isFound) {
-                throw new InvalidSyntaxException("Unrecognized operation '" + bytecode[i] + "' at position: " + i);
+                case 0x0D -> {
+                    InstructionType type = InstructionType.START_LOOP;
+                    if (i + type.count() > bytecode.length - 1) {
+                        throw new InvalidSyntaxException("Missing repetition/operation count metadata at position: " + i);
+                    }
+                    LoopNode loop = new LoopNode(bytecode[i + 1]);
+                    int count = bytecode[i + 2];
+                    i += type.count();
+                    if (loops.empty()) {
+                        operations.add(loop);
+                    } else {
+                        counts.peek().increment();
+                        if (counts.peek().distance() == 0) {
+                            loops.pop();
+                            counts.pop();
+                        }
+                    }
+                    loops.push(loop);
+                    counts.push(new Counter(count, 0));
+                }
+                default -> throw new InvalidSyntaxException("Unrecognized operation '" + operation + "' at position: " + i);
             }
         }
-        return result.toString();
+        if (!loops.empty()) {
+            throw new InvalidSyntaxException("Missing operations inside one or more loops");
+        }
+        return new ProgramNode(operations, 1);
+    }
+
+    private static CommandNode decompileNode(byte[] bytecode, byte operation, int index) {
+        InstructionType type = InstructionType.fromCode(operation);
+        if (type == null) {
+            throw new InvalidSyntaxException("Unrecognized operation '" + operation + "' at position: " + index);
+        }
+        if (type.isRepeatable()) {
+            if (index + type.count() > bytecode.length - 1) {
+                throw new InvalidSyntaxException("Missing repetition count metadata at position: " + index);
+            }
+            return new CommandNode(type, bytecode[index + type.count()]);
+        }
+        return new CommandNode(type, 1);
     }
 
 }

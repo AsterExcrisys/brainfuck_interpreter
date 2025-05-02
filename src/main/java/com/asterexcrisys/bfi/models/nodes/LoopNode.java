@@ -1,5 +1,6 @@
 package com.asterexcrisys.bfi.models.nodes;
 
+import com.asterexcrisys.bfi.models.instructions.InstructionType;
 import com.asterexcrisys.bfi.services.Generator;
 import com.asterexcrisys.bfi.services.Memory;
 import java.util.ArrayList;
@@ -87,18 +88,25 @@ public class LoopNode implements BlockNode {
         };
     }
 
-    public void translate(List<Byte> bytecode) {
+    public int translate(List<Byte> bytecode) {
         if (count < 2) {
-            bytecode.add((byte) 0x0D);
-            translateBody(bytecode);
-            bytecode.add((byte) 0x0E);
-            return;
+            bytecode.add(InstructionType.START_LOOP.code());
+            bytecode.add((byte) (count & 0xFF));
+            bytecode.add((byte) 0x00);
+            int index = bytecode.size() - 1;
+            bytecode.set(index, (byte) (translateBody(bytecode) & 0xFF));
+            return bytecode.get(index);
         }
-        for (int i = 0; i < count; i++) {
-            bytecode.add((byte) 0x0D);
-            translateBody(bytecode);
-            bytecode.add((byte) 0x0E);
+        int count = 0;
+        for (int i = 0; i < this.count; i++) {
+            bytecode.add(InstructionType.START_LOOP.code());
+            bytecode.add((byte) (count & 0xFF));
+            bytecode.add((byte) 0x00);
+            int index = bytecode.size() - 1;
+            bytecode.set(index, (byte) (translateBody(bytecode) & 0xFF));
+            count += bytecode.get(index);
         }
+        return count + 1;
     }
 
     public BlockNode partialCopy() {
@@ -138,10 +146,12 @@ public class LoopNode implements BlockNode {
         };
     }
 
-    private void translateBody(List<Byte> bytecode) {
+    private int translateBody(List<Byte> bytecode) {
+        int count = 0;
         for (Node operation : body) {
-            operation.translate(bytecode);
+            count += operation.translate(bytecode);
         }
+        return count;
     }
 
     @Override

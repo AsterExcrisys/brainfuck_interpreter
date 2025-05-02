@@ -1,37 +1,38 @@
 package com.asterexcrisys.bfi.models.nodes;
 
 import com.asterexcrisys.bfi.exceptions.InvalidSyntaxException;
+import com.asterexcrisys.bfi.models.instructions.InstructionType;
 import com.asterexcrisys.bfi.services.Memory;
 import java.util.List;
 
 @SuppressWarnings("unused")
 public class CommandNode implements Node {
 
-    private final char command;
+    private final InstructionType type;
     private int count;
 
     public CommandNode() {
-        command = '\0';
+        type = null;
         count = 0;
     }
 
-    public CommandNode(char command) {
-        this.command = command;
+    public CommandNode(InstructionType type) {
+        this.type = type;
         count = 1;
     }
 
     public CommandNode(int count) {
-        command = '\0';
+        type = null;
         this.count = count;
     }
 
-    public CommandNode(char command, int count) {
-        this.command = command;
+    public CommandNode(InstructionType type, int count) {
+        this.type = type;
         this.count = count;
     }
 
-    public char command() {
-        return command;
+    public InstructionType type() {
+        return type;
     }
 
     public int count() {
@@ -43,65 +44,46 @@ public class CommandNode implements Node {
     }
 
     public void execute(Memory memory) {
-        switch (command) {
-            case '^' -> memory.moveStart();
-            case 'v' -> memory.moveEnd();
-            case '=' -> memory.moveMiddle();
-            case '>' -> memory.moveRight(count);
-            case '<' -> memory.moveLeft(count);
-            case '+' -> memory.increment(count);
-            case '-' -> memory.decrement(count);
-            case '*' -> memory.maximize();
-            case ':' -> memory.minimize();
-            case '%' -> memory.halve();
-            case '#' -> memory.clear();
-            case '.' -> memory.printOutput(count);
-            case ',' -> memory.readInput(count);
-            default -> throw new InvalidSyntaxException("Unknown command: " + command);
+        if (type == null) {
+            throw new InvalidSyntaxException("Missing valid type for command node");
+        }
+        switch (type) {
+            case InstructionType.MOVE_START -> memory.moveStart();
+            case InstructionType.MOVE_END -> memory.moveEnd();
+            case InstructionType.MOVE_MIDDLE -> memory.moveMiddle();
+            case InstructionType.MOVE_RIGHT -> memory.moveRight(count);
+            case InstructionType.MOVE_LEFT -> memory.moveLeft(count);
+            case InstructionType.INCREMENT -> memory.increment(count);
+            case InstructionType.DECREMENT -> memory.decrement(count);
+            case InstructionType.MAXIMIZE -> memory.maximize();
+            case InstructionType.MINIMIZE -> memory.minimize();
+            case InstructionType.HALVE -> memory.halve();
+            case InstructionType.CLEAR -> memory.clear();
+            case InstructionType.PRINT_OUTPUT -> memory.printOutput(count);
+            case InstructionType.READ_INPUT -> memory.readInput(count);
+            default -> throw new InvalidSyntaxException("Unknown command: " + type.command());
         }
     }
 
-    public void translate(List<Byte> bytecode) {
-        switch (command) {
-            case '^' -> bytecode.add((byte) 0x00);
-            case 'v' -> bytecode.add((byte) 0x01);
-            case '=' -> bytecode.add((byte) 0x02);
-            case '>' -> {
-                for (int i = 0; i < count; i++) {
-                    bytecode.add((byte) 0x03);
-                }
-            }
-            case '<' -> {
-                for (int i = 0; i < count; i++) {
-                    bytecode.add((byte) 0x04);
-                }
-            }
-            case '+' -> {
-                for (int i = 0; i < count; i++) {
-                    bytecode.add((byte) 0x05);
-                }
-            }
-            case '-' -> {
-                for (int i = 0; i < count; i++) {
-                    bytecode.add((byte) 0x06);
-                }
-            }
-            case '*' -> bytecode.add((byte) 0x07);
-            case ':' -> bytecode.add((byte) 0x08);
-            case '%' -> bytecode.add((byte) 0x09);
-            case '#' -> bytecode.add((byte) 0x0A);
-            case '.' -> {
-                for (int i = 0; i < count; i++) {
-                    bytecode.add((byte) 0x0B);
-                }
-            }
-            case ',' -> {
-                for (int i = 0; i < count; i++) {
-                    bytecode.add((byte) 0x0C);
-                }
-            }
-            default -> throw new InvalidSyntaxException("Unknown command: " + command);
+    public int translate(List<Byte> bytecode) {
+        if (type == null) {
+            throw new InvalidSyntaxException("Missing valid type for command node");
         }
+        switch (type) {
+            case InstructionType.MOVE_START -> bytecode.add((byte) 0x00);
+            case InstructionType.MOVE_END -> bytecode.add((byte) 0x01);
+            case InstructionType.MOVE_MIDDLE -> bytecode.add((byte) 0x02);
+            case InstructionType.MOVE_RIGHT, InstructionType.MOVE_LEFT, InstructionType.INCREMENT, InstructionType.DECREMENT, InstructionType.PRINT_OUTPUT, InstructionType.READ_INPUT -> {
+                bytecode.add(type.code());
+                bytecode.add((byte) (count & 0xFF));
+            }
+            case InstructionType.MAXIMIZE -> bytecode.add((byte) 0x07);
+            case InstructionType.MINIMIZE -> bytecode.add((byte) 0x08);
+            case InstructionType.HALVE -> bytecode.add((byte) 0x09);
+            case InstructionType.CLEAR -> bytecode.add((byte) 0x0A);
+            default -> throw new InvalidSyntaxException("Unknown command: " + type.command());
+        }
+        return 1;
     }
 
     public Node partialCopy() {
@@ -109,7 +91,7 @@ public class CommandNode implements Node {
     }
 
     public Node fullCopy() {
-        return new CommandNode(command, count);
+        return new CommandNode(type, count);
     }
 
     @Override
@@ -117,7 +99,7 @@ public class CommandNode implements Node {
         if (!(other instanceof CommandNode node)) {
             return false;
         }
-        return node.command == command && node.count == count;
+        return node.type == type && node.count == count;
     }
 
 }

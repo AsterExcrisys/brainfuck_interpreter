@@ -87,4 +87,16 @@ public class Debugger implements AutoCloseable {
         return iterator.next();
     }
 
+    public static Generator<Node> debug(byte[] bytecode, boolean shouldOptimize) {
+        ProgramNode program;
+        if (shouldOptimize) {
+            Optimizer optimizer = new Optimizer(Compiler.decompile(bytecode));
+            program = optimizer.optimize();
+        } else {
+            program = Compiler.decompile(bytecode);
+        }
+        Memory memory = new Memory();
+        return program.executeOnce(memory);
+    }
+
 }

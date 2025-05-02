@@ -3,6 +3,7 @@ package com.asterexcrisys.bfi.services;
 import com.asterexcrisys.bfi.exceptions.InvalidSyntaxException;
 import com.asterexcrisys.bfi.models.dialects.Dialect;
 import com.asterexcrisys.bfi.models.dialects.DialectType;
+import com.asterexcrisys.bfi.models.instructions.InstructionType;
 import com.asterexcrisys.bfi.models.nodes.CommandNode;
 import com.asterexcrisys.bfi.models.nodes.LoopNode;
 import com.asterexcrisys.bfi.models.nodes.Node;
@@ -96,7 +97,7 @@ public class Parser {
                     if (isComment) {
                         break;
                     }
-                    CommandNode command = new CommandNode(operation, 1);
+                    CommandNode command = new CommandNode(InstructionType.fromCommand(operation), 1);
                     if (loops.empty()) {
                         operations.add(command);
                     } else {
