@@ -85,8 +85,11 @@ public class Compiler {
                     if (i + type.count() > bytecode.length - 1) {
                         throw new InvalidSyntaxException("Missing repetition/operation count metadata at position: " + i);
                     }
-                    LoopNode loop = new LoopNode(bytecode[i + 1]);
                     int count = bytecode[i + 2];
+                    if (i + type.count() + count > bytecode.length - 1) {
+                        throw new InvalidSyntaxException("Missing operations inside loop at position: " + i);
+                    }
+                    LoopNode loop = new LoopNode(bytecode[i + 1]);
                     i += type.count();
                     if (loops.empty()) {
                         operations.add(loop);
