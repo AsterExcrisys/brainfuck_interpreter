@@ -13,7 +13,7 @@ This tool is ideal for experimenting with the Brainfuck language, analyzing its 
 ## 📦 Package Structure
 
 ```
-com.asterexcrisys.bfi
+com.asterexcrisys.brainfuck
 │
 ├── exceptions                # Custom exceptions for interpreter, debugger, and compiler
 │   ├── FailedConversionException.java
@@ -76,9 +76,10 @@ com.asterexcrisys.bfi
 ### 🧪 Example Usage
 
 ```java
-import com.asterexcrisys.bfi.Compiler;
-import com.asterexcrisys.bfi.Interpreter;
-import com.asterexcrisys.bfi.models.dialects.DialectType;
+import com.asterexcrisys.brainfuck.Compiler;
+import com.asterexcrisys.brainfuck.Interpreter;
+import com.asterexcrisys.brainfuck.models.dialects.DialectType;
+
 import java.util.Arrays;
 import java.util.HexFormat;
 

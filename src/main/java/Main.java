@@ -1,6 +1,6 @@
-import com.asterexcrisys.bfi.Compiler;
-import com.asterexcrisys.bfi.Interpreter;
-import com.asterexcrisys.bfi.models.dialects.DialectType;
+import com.asterexcrisys.brainfuck.Compiler;
+import com.asterexcrisys.brainfuck.Interpreter;
+import com.asterexcrisys.brainfuck.models.dialects.DialectType;
 import java.util.Arrays;
 import java.util.HexFormat;
 
